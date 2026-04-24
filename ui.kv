@@ -1,0 +1,769 @@
+#:kivy 2.2.1
+#:import dp kivy.metrics.dp
+
+#:include score.kv
+#:include auth.kv
+
+
+<WhiteScreen@Screen>:
+    canvas.before:
+        Color:
+            rgba: 0.93, 0.95, 0.98, 1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<SectionTitle@Label>:
+    size_hint_y: None
+    height: dp(26)
+    font_size: "16sp"
+    bold: True
+    color: 0.10, 0.12, 0.16, 1
+    text_size: self.size
+    valign: "middle"
+
+<RoundedBtn@Button>:
+    background_normal: ""
+    background_down: ""
+    color: 1, 1, 1, 1
+    size_hint_y: None
+    height: dp(44)
+    size_hint_x: None
+    width: dp(240)
+    pos_hint: {"center_x": 0.5}
+    canvas.before:
+        Color:
+            rgba: app.shade(self.background_color, 0.88) if self.state == "down" else self.background_color
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(14), dp(14), dp(14), dp(14)]
+
+<SmallBtn@RoundedBtn>:
+    width: dp(110)
+    height: dp(44)
+
+<RoundedCard@BoxLayout>:
+    orientation: "vertical"
+    padding: dp(12)
+    spacing: dp(10)
+    size_hint_y: None
+    height: self.minimum_height
+    canvas.before:
+        Color:
+            rgba: 0.98, 0.98, 0.99, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(16), dp(16), dp(16), dp(16)]
+
+<HamburgerBtn@Button>:
+    background_normal: ""
+    background_down: ""
+    background_color: 0.10, 0.18, 0.32, 1
+    text: ""
+    size_hint: None, None
+    size: dp(44), dp(38)
+    canvas.after:
+        Color:
+            rgba: 1, 1, 1, 1
+        Line:
+            width: dp(3.6)
+            points: self.x + dp(12), self.center_y + dp(8), self.right - dp(12), self.center_y + dp(8)
+        Line:
+            width: dp(3.6)
+            points: self.x + dp(12), self.center_y,          self.right - dp(12), self.center_y
+        Line:
+            width: dp(3.6)
+            points: self.x + dp(12), self.center_y - dp(8), self.right - dp(12), self.center_y - dp(8)
+
+<AppHeader>:
+    size_hint_y: None
+    height: dp(54)
+    padding: dp(10), dp(8)
+    spacing: dp(10)
+    canvas.before:
+        Color:
+            rgba: 0.10, 0.18, 0.32, 1
+        RoundedRectangle:
+            pos: self.pos
+            size: self.size
+            radius: [dp(18), dp(18), 0, 0]
+
+    HamburgerBtn:
+        on_release: app.toggle_menu()
+
+    Label:
+        text: root.title_text
+        color: 1, 1, 1, 1
+        font_size: "18sp"
+        bold: True
+        text_size: self.size
+        halign: "left"
+        valign: "middle"
+
+    Widget:
+
+    Button:
+        text: "Close"
+        size_hint: None, None
+        size: dp(70), dp(38)
+        background_normal: ""
+        background_down: ""
+        background_color: 0.10, 0.18, 0.32, 1
+        color: 1, 1, 1, 1
+        font_size: "14sp"
+        on_release: app.request_exit()
+
+<BlackCheckBox@CheckBox>:
+    size_hint: None, None
+    size: dp(18), dp(18)
+    canvas.before:
+        Color:
+            rgba: 0, 0, 0, 1
+        Line:
+            width: dp(2)
+            rectangle: (self.x, self.y, self.width, self.height)
+        Color:
+            rgba: (0, 0, 0, 1) if self.active else (0, 0, 0, 0)
+        Rectangle:
+            pos: self.x + dp(3), self.y + dp(3)
+            size: self.width - dp(6), self.height - dp(6)
+
+<TeamSelectBtn@Button>:
+    team_name: ""
+    selected: False
+    background_normal: ""
+    background_down: ""
+    color: 1, 1, 1, 1
+    size_hint: None, None
+    size: dp(120), dp(44)
+    canvas.after:
+        Color:
+            rgba: (0, 0, 0, 1) if self.selected else (0, 0, 0, 0)
+        Line:
+            width: dp(4)
+            rounded_rectangle: (self.x, self.y, self.width, self.height, dp(10), dp(10), dp(10), dp(10))
+
+<MobileRoot@BoxLayout>:
+    orientation: "vertical"
+    size_hint: None, 1
+    width: dp(430)
+    pos_hint: {"center_x": 0.5}
+
+
+<RootWidget@FloatLayout>:
+    AnchorLayout:
+        anchor_x: "center"
+        anchor_y: "top"
+
+        MobileRoot:
+            BoxLayout:
+                orientation: "vertical"
+
+                AppHeader:
+                    id: app_header
+                    title_text: "Cricket"
+
+                ScreenManager:
+                    id: sm
+
+                    # ✅ Auth screens
+                    LoginScreen:
+                    RegisterScreen:
+                    ForgotPasswordScreen:
+                    ProfileScreen:
+
+                    # Existing screens
+                    HomeScreen:
+                    CreateTournamentScreen:
+                    TournamentListScreen:
+                    TournamentDetailScreen:
+                    TeamMatchesScreen:
+                    TeamPickScreen:
+                    TeamEditorScreen:
+                    ScoreScreen:
+
+    Button:
+        id: overlay
+        pos: 0, 0
+        disabled: root.ids.drawer.x <= (-root.ids.drawer.width + dp(1))
+        size_hint: (1, 1) if not self.disabled else (None, None)
+        size: self.parent.size if not self.disabled else (0, 0)
+        opacity: 0 if self.disabled else 0.35
+        background_normal: ""
+        background_down: ""
+        background_color: 0, 0, 0, 1
+        on_release: app.close_menu()
+
+    BoxLayout:
+        id: drawer
+        orientation: "vertical"
+        size_hint: None, 1
+        width: dp(260)
+        x: -self.width
+        y: 0
+        padding: dp(12)
+        spacing: dp(10)
+
+        canvas.before:
+            Color:
+                rgba: 0.10, 0.18, 0.32, 1
+            RoundedRectangle:
+                pos: self.pos
+                size: self.size
+                radius: [0, dp(18), dp(18), 0]
+
+        Label:
+            text: "Cricket Menu"
+            size_hint_y: None
+            height: dp(46)
+            color: 1, 1, 1, 1
+            bold: True
+            font_size: "18sp"
+            text_size: self.size
+            halign: "left"
+            valign: "middle"
+
+        RoundedBtn:
+            text: "Login"
+            background_color: 0.16, 0.63, 0.95, 1
+            width: dp(220)
+            disabled: app.is_logged_in
+            opacity: 0 if app.is_logged_in else 1
+            on_release: app.auth_go_login()
+
+        RoundedBtn:
+            text: "Register"
+            background_color: 0.13, 0.78, 0.42, 1
+            width: dp(220)
+            disabled: app.is_logged_in
+            opacity: 0 if app.is_logged_in else 1
+            on_release: app.auth_go_register()
+
+        RoundedBtn:
+            text: "Home"
+            background_color: 0.16, 0.63, 0.95, 1
+            width: dp(220)
+            disabled: not app.is_logged_in
+            opacity: 1 if app.is_logged_in else 0.4
+            on_release: app.go("home")
+
+        RoundedBtn:
+            text: "Create Tournament"
+            background_color: 0.55, 0.22, 0.90, 1
+            width: dp(220)
+            disabled: not app.is_logged_in
+            opacity: 1 if app.is_logged_in else 0.4
+            on_release: app.go("create_tournament")
+
+        RoundedBtn:
+            text: "View Tournaments"
+            background_color: 0.13, 0.78, 0.42, 1
+            width: dp(220)
+            disabled: not app.is_logged_in
+            opacity: 1 if app.is_logged_in else 0.4
+            on_release: app.load_tournaments()
+
+        RoundedBtn:
+            text: "Delete Tournament"
+            background_color: 0.90, 0.18, 0.22, 1
+            width: dp(220)
+            disabled: not app.is_logged_in
+            opacity: 1 if app.is_logged_in else 0.4
+            on_release: app.open_delete_tournament_popup()
+
+        RoundedBtn:
+            text: "Score"
+            background_color: 0.96, 0.58, 0.11, 1
+            width: dp(220)
+            disabled: not app.is_logged_in
+            opacity: 1 if app.is_logged_in else 0.4
+            on_release: app.go("score")
+
+        RoundedBtn:
+            text: "My Profile"
+            background_color: 0.45, 0.49, 0.55, 1
+            width: dp(220)
+            disabled: not app.is_logged_in
+            opacity: 1 if app.is_logged_in else 0.4
+            on_release: app.auth_go_profile()
+
+        Widget:
+
+        RoundedBtn:
+            text: "Logout"
+            background_color: 0.65, 0.65, 0.65, 1
+            width: dp(220)
+            disabled: not app.is_logged_in
+            opacity: 1 if app.is_logged_in else 0.0
+            on_release: app.auth_profile_logout()
+
+        RoundedBtn:
+            text: "Close Menu"
+            background_color: 0.45, 0.49, 0.55, 1
+            width: dp(220)
+            on_release: app.close_menu()
+
+
+<HomeScreen@WhiteScreen>:
+    name: "home"
+    AnchorLayout:
+        anchor_x: "center"
+        anchor_y: "top"
+        padding: dp(18), dp(18)
+        BoxLayout:
+            orientation: "vertical"
+            spacing: dp(14)
+            size_hint_y: None
+            height: self.minimum_height
+
+            Label:
+                text: ("Welcome, " + app.logged_in_user_name) if app.logged_in_user_name else "Tournament Manager"
+                font_size: "26sp"
+                bold: True
+                color: 0.10, 0.12, 0.16, 1
+                size_hint_y: None
+                height: dp(54)
+
+            RoundedBtn:
+                text: "Create Tournament"
+                background_color: 0.55, 0.22, 0.90, 1
+                on_release: app.go("create_tournament")
+
+            RoundedBtn:
+                text: "View Tournaments"
+                background_color: 0.13, 0.78, 0.42, 1
+                on_release: app.load_tournaments()
+
+            RoundedBtn:
+                text: "Delete Tournament"
+                background_color: 0.90, 0.18, 0.22, 1
+                on_release: app.open_delete_tournament_popup()
+
+
+<CreateTournamentScreen@WhiteScreen>:
+    name: "create_tournament"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(18)
+        spacing: dp(12)
+
+        RoundedCard:
+            SectionTitle:
+                text: "Tournament Details"
+
+            TextInput:
+                id: tname
+                hint_text: "Tournament Name"
+                size_hint_y: None
+                height: dp(44)
+                multiline: False
+
+            Spinner:
+                id: fmt
+                text: "group"
+                values: ["group", "knockout"]
+                size_hint_y: None
+                height: dp(44)
+
+            RoundedBtn:
+                text: "Create Tournament"
+                background_color: 0.16, 0.63, 0.95, 1
+                on_release: app.create_tournament(tname.text, fmt.text)
+
+        RoundedBtn:
+            text: "Back to Home"
+            background_color: 0.45, 0.49, 0.55, 1
+            on_release: app.go("home")
+
+
+<TournamentListScreen@WhiteScreen>:
+    name: "tournament_list"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(18)
+        spacing: dp(12)
+
+        ScrollView:
+            do_scroll_x: False
+            bar_width: dp(4)
+            GridLayout:
+                id: tour_grid
+                cols: 1
+                spacing: dp(10)
+                size_hint_y: None
+                height: self.minimum_height
+
+        RoundedBtn:
+            text: "Back"
+            background_color: 0.45, 0.49, 0.55, 1
+            on_release: app.go("home")
+
+<TournamentDetailScreen@WhiteScreen>:
+    name: "tournament_detail"
+    ScrollView:
+        do_scroll_x: False
+        bar_width: dp(4)
+
+        BoxLayout:
+            orientation: "vertical"
+            padding: dp(18)
+            spacing: dp(14)
+            size_hint_y: None
+            height: self.minimum_height
+
+            BoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: dp(44)
+                spacing: dp(10)
+
+                RoundedBtn:
+                    text: "Back"
+                    width: dp(110)
+                    background_color: 0.45, 0.49, 0.55, 1
+                    on_release: app.load_tournaments()
+
+                Widget:
+
+            SectionTitle:
+                text: "Teams (Admin Tools)"
+
+            BoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: dp(44)
+                spacing: dp(8)
+
+                RoundedBtn:
+                    text: "Add Team"
+                    width: dp(120)
+                    background_color: 0.16, 0.63, 0.95, 1
+                    on_release: app.open_add_team_admin()
+
+                RoundedBtn:
+                    text: "Update Team"
+                    width: dp(120)
+                    background_color: 0.96, 0.58, 0.11, 1
+                    on_release: app.open_update_team_admin()
+
+                RoundedBtn:
+                    text: "Delete Team"
+                    width: dp(120)
+                    background_color: 0.90, 0.18, 0.22, 1
+                    on_release: app.open_delete_team_admin()
+
+            BoxLayout:
+                orientation: "horizontal"
+                size_hint_y: None
+                height: dp(44)
+                spacing: dp(8)
+
+                RoundedBtn:
+                    text: "Import Teams"
+                    width: dp(120)
+                    background_color: 0.55, 0.22, 0.90, 1
+                    on_release: app.team_admin.open_import_teams_popup()
+
+                RoundedBtn:
+                    text: "Export Teams"
+                    width: dp(120)
+                    background_color: 0.13, 0.78, 0.42, 1
+                    on_release: app.team_admin.open_export_teams_popup()
+
+                Widget:
+
+            GridLayout:
+                id: team_grid
+                cols: 1
+                spacing: 0
+                size_hint_y: None
+                height: 0
+                opacity: 0
+                disabled: True
+
+            SectionTitle:
+                text: "Points Table"
+
+            GridLayout:
+                id: points_grid
+                cols: 1
+                spacing: dp(8)
+                size_hint_y: None
+                height: self.minimum_height
+
+            SectionTitle:
+                text: "Matches Schedule"
+
+            RoundedBtn:
+                text: "Create Fixture"
+                background_color: 0.16, 0.63, 0.95, 1
+                on_release: app.open_create_fixture_popup()
+
+            GridLayout:
+                id: match_grid
+                cols: 1
+                spacing: dp(8)
+                size_hint_y: None
+                height: self.minimum_height
+
+
+<TeamMatchesScreen@WhiteScreen>:
+    name: "team_matches"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(18)
+        spacing: dp(12)
+
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: dp(44)
+            spacing: dp(10)
+
+            RoundedBtn:
+                text: "Back"
+                width: dp(110)
+                background_color: 0.45, 0.49, 0.55, 1
+                on_release: app.back_from_team_matches()
+
+            Label:
+                id: team_matches_title
+                text: "Team Matches"
+                bold: True
+                font_size: "16sp"
+                color: 0.10, 0.12, 0.16, 1
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+
+        ScrollView:
+            do_scroll_x: False
+            bar_width: dp(4)
+            GridLayout:
+                id: team_matches_grid
+                cols: 1
+                spacing: dp(8)
+                size_hint_y: None
+                height: self.minimum_height
+
+
+<TeamPickScreen@WhiteScreen>:
+    name: "team_pick"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(12)
+        spacing: dp(8)
+
+        Label:
+            text: "Team Selection"
+            bold: True
+            color: 0.10, 0.12, 0.16, 1
+            size_hint_y: None
+            height: dp(26)
+
+        Label:
+            id: pick_hint
+            text: "Tap a team"
+            color: 0.30, 0.32, 0.36, 1
+            size_hint_y: None
+            height: dp(20)
+
+        ScrollView:
+            do_scroll_x: False
+            bar_width: dp(4)
+            GridLayout:
+                id: team_pick_grid
+                cols: 1
+                spacing: dp(6)
+                size_hint_y: None
+                height: self.minimum_height
+
+        BoxLayout:
+            id: delete_confirm_box
+            orientation: "vertical"
+            spacing: dp(6)
+            size_hint_y: None
+            height: self.minimum_height
+            opacity: 0
+            disabled: True
+
+            Label:
+                id: delete_selected_lbl
+                text: "No team selected"
+                color: 0.10, 0.12, 0.16, 1
+                size_hint_y: None
+                height: dp(20)
+
+            BoxLayout:
+                size_hint_y: None
+                height: dp(40)
+                spacing: dp(8)
+
+                RoundedBtn:
+                    text: "Confirm Delete"
+                    width: dp(160)
+                    background_color: 0.90, 0.18, 0.22, 1
+                    on_release: app.team_admin_confirm_delete()
+
+                RoundedBtn:
+                    text: "Back"
+                    width: dp(160)
+                    background_color: 0.45, 0.49, 0.55, 1
+                    on_release: app.team_admin_back()
+
+        RoundedBtn:
+            text: "Back"
+            background_color: 0.45, 0.49, 0.55, 1
+            on_release: app.team_admin_back()
+
+
+<TeamEditorScreen@WhiteScreen>:
+    name: "team_editor"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(6)
+        spacing: dp(6)
+
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: dp(40)
+            spacing: dp(6)
+            canvas.before:
+                Color:
+                    rgba: 0.18, 0.18, 0.18, 1
+                RoundedRectangle:
+                    pos: self.pos
+                    size: self.size
+                    radius: [dp(10), dp(10), dp(10), dp(10)]
+
+            Label:
+                text: "Team Name"
+                color: 1, 1, 1, 1
+                size_hint_x: None
+                width: dp(90)
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+
+            TextInput:
+                id: team_name_inp
+                multiline: False
+
+        BoxLayout:
+            size_hint_y: None
+            height: dp(40)
+            spacing: dp(6)
+
+            RoundedBtn:
+                text: "Add"
+                width: dp(70)
+                background_color: 0.16, 0.63, 0.95, 1
+                on_release: app.team_admin_add_player()
+
+            RoundedBtn:
+                text: "Delete"
+                width: dp(70)
+                background_color: 0.90, 0.18, 0.22, 1
+                on_release: app.team_admin_delete_player()
+
+            RoundedBtn:
+                text: "Up"
+                width: dp(70)
+                background_color: 0.45, 0.49, 0.55, 1
+                on_release: app.team_admin_move_up()
+
+            RoundedBtn:
+                text: "Down"
+                width: dp(70)
+                background_color: 0.45, 0.49, 0.55, 1
+                on_release: app.team_admin_move_down()
+
+        GridLayout:
+            cols: 5
+            size_hint_y: None
+            height: dp(26)
+            spacing: dp(2)
+
+            BlackCheckBox:
+                id: header_sel_all
+                size_hint_x: None
+                width: dp(32)
+                on_active: app.team_admin_toggle_select_all(self.active)
+
+            Label:
+                text: "[b]No[/b]"
+                markup: True
+                size_hint_x: None
+                width: dp(34)
+                color: 0.10, 0.12, 0.16, 1
+                halign: "center"
+                valign: "middle"
+                text_size: self.size
+
+            Label:
+                text: "[b]Player Name[/b]"
+                markup: True
+                size_hint_x: None
+                width: dp(180)
+                color: 0.10, 0.12, 0.16, 1
+                halign: "center"
+                valign: "middle"
+                text_size: self.size
+
+            Label:
+                text: "[b]Age[/b]"
+                markup: True
+                size_hint_x: None
+                width: dp(52)
+                color: 0.10, 0.12, 0.16, 1
+                halign: "center"
+                valign: "middle"
+                text_size: self.size
+
+            Label:
+                text: "[b]Role[/b]"
+                markup: True
+                size_hint_x: None
+                width: dp(120)
+                color: 0.10, 0.12, 0.16, 1
+                halign: "left"
+                valign: "middle"
+                text_size: self.size
+
+        ScrollView:
+            do_scroll_x: False
+            bar_width: dp(6)
+            size_hint_y: 1
+
+            GridLayout:
+                id: player_table_grid
+                cols: 5
+                spacing: dp(4)
+                padding: dp(0), dp(4)
+                size_hint_y: None
+                height: self.minimum_height
+                row_force_default: True
+                row_default_height: dp(40)
+
+        BoxLayout:
+            size_hint_y: None
+            height: dp(40)
+            spacing: dp(8)
+
+            RoundedBtn:
+                text: "Back"
+                width: dp(160)
+                background_color: 0.45, 0.49, 0.55, 1
+                on_release: app.team_admin_back()
+
+            RoundedBtn:
+                text: "Save Team"
+                width: dp(160)
+                background_color: 0.13, 0.78, 0.42, 1
+                on_release: app.team_admin_save_team()
+
+
+RootWidget:

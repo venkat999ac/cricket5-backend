@@ -1,0 +1,325 @@
+#:import dp kivy.metrics.dp
+
+<LoginScreen@WhiteScreen>:
+    name: "login"
+    AnchorLayout:
+        anchor_x: "center"
+        anchor_y: "top"
+        padding: dp(12), dp(12)
+        BoxLayout:
+            orientation: "vertical"
+            size_hint_y: None
+            height: self.minimum_height
+            width: dp(380)
+
+            RoundedCard:
+                SectionTitle:
+                    text: "Login"
+
+                # Email
+                TextInput:
+                    id: login_email
+                    hint_text: "Email"
+                    size_hint_y: None
+                    height: dp(44)
+                    multiline: False
+
+                # Password row contains password field and a "Show" toggle
+                BoxLayout:
+                    orientation: "horizontal"
+                    spacing: dp(8)
+                    size_hint_y: None
+                    height: dp(44)
+
+                    TextInput:
+                        id: login_password
+                        hint_text: "Password"
+                        password: True
+                        size_hint_x: 1
+                        multiline: False
+
+                    ToggleButton:
+                        id: login_show_pwd
+                        text: "Show"
+                        size_hint_x: None
+                        width: dp(68)
+                        background_normal: ""
+                        background_down: ""
+                        background_color: (0.45, 0.49, 0.55, 1) if self.state == "normal" else (0.16, 0.63, 0.95, 1)
+                        color: (1,1,1,1)
+                        on_state:
+                            login_password.password = False if self.state == 'down' else True
+                            self.text = "Hide" if self.state == 'down' else "Show"
+                        on_release: self.state = 'down' if self.state == 'normal' else 'normal'
+
+                # Remember me checkbox (immediately under password)
+                BoxLayout:
+                    orientation: "horizontal"
+                    size_hint_y: None
+                    height: dp(36)
+                    spacing: dp(8)
+                    padding: (dp(6), 0)
+
+                    CheckBox:
+                        id: remember_cb
+                        size_hint: None, None
+                        size: dp(20), dp(20)
+                        on_active: app.auth_remember = self.active
+
+                    Label:
+                        text: "Remember me (stay logged in)"
+                        size_hint_x: 1
+                        color: 0.10, 0.12, 0.16, 1
+                        font_size: "13sp"
+                        halign: "left"
+                        valign: "middle"
+                        text_size: self.size
+
+                Label:
+                    id: login_status
+                    text: ""
+                    color: 0.90, 0.18, 0.22, 1
+                    size_hint_y: None
+                    height: dp(20)
+
+                RoundedBtn:
+                    text: "Login"
+                    background_color: 0.16, 0.63, 0.95, 1
+                    on_release: app.auth_login_submit()
+
+                RoundedBtn:
+                    text: "Forgot Password?"
+                    background_color: 0.45, 0.49, 0.55, 1
+                    on_release: app.auth_go_forgot_password()
+
+                RoundedBtn:
+                    text: "New user? Register"
+                    background_color: 0.13, 0.78, 0.42, 1
+                    on_release: app.auth_go_register()
+
+
+<RegisterScreen@WhiteScreen>:
+    name: "register"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(18)
+        spacing: dp(12)
+
+        RoundedCard:
+            SectionTitle:
+                text: "Register"
+
+            TextInput:
+                id: register_name
+                hint_text: "Your name"
+                size_hint_y: None
+                height: dp(44)
+                multiline: False
+
+            TextInput:
+                id: register_email
+                hint_text: "Email"
+                size_hint_y: None
+                height: dp(44)
+                multiline: False
+
+            TextInput:
+                id: register_password
+                hint_text: "Password (min 6 chars)"
+                password: True
+                size_hint_y: None
+                height: dp(44)
+                multiline: False
+
+            TextInput:
+                id: register_confirm
+                hint_text: "Confirm password"
+                password: True
+                size_hint_y: None
+                height: dp(44)
+                multiline: False
+
+            Label:
+                id: register_status
+                text: ""
+                color: 0.90, 0.18, 0.22, 1
+                size_hint_y: None
+                height: dp(20)
+
+            RoundedBtn:
+                text: "Create Account"
+                background_color: 0.16, 0.63, 0.95, 1
+                on_release: app.auth_register_submit()
+
+            RoundedBtn:
+                text: "Already registered? Login"
+                background_color: 0.45, 0.49, 0.55, 1
+                on_release: app.auth_go_login()
+
+
+<ForgotPasswordScreen@WhiteScreen>:
+    name: "forgot_password"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(18)
+        spacing: dp(12)
+
+        RoundedCard:
+            SectionTitle:
+                text: "Forgot Password"
+
+            Label:
+                text: "Enter your registered email. We'll send a reset link."
+                color: 0.30, 0.32, 0.36, 1
+                size_hint_y: None
+                height: dp(42)
+                text_size: self.size
+                halign: "left"
+                valign: "middle"
+
+            TextInput:
+                id: forgot_email
+                hint_text: "Email"
+                size_hint_y: None
+                height: dp(44)
+                multiline: False
+
+            Label:
+                id: forgot_status
+                text: ""
+                color: 0.13, 0.78, 0.42, 1
+                size_hint_y: None
+                height: dp(38)
+                text_size: self.size
+                halign: "left"
+                valign: "middle"
+
+            RoundedBtn:
+                text: "Send Reset Link"
+                background_color: 0.16, 0.63, 0.95, 1
+                on_release: app.auth_forgot_submit()
+
+            RoundedBtn:
+                text: "Back to Login"
+                background_color: 0.45, 0.49, 0.55, 1
+                on_release: app.auth_go_login()
+
+
+<ProfileScreen@WhiteScreen>:
+    name: "profile"
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(18)
+        spacing: dp(12)
+
+        RoundedCard:
+            SectionTitle:
+                text: "My Profile"
+
+            Label:
+                text: "Email"
+                color: 0.30, 0.32, 0.36, 1
+                size_hint_y: None
+                height: dp(18)
+
+            TextInput:
+                id: profile_email
+                readonly: True
+                size_hint_y: None
+                height: dp(44)
+                multiline: False
+
+            Label:
+                text: "Name"
+                color: 0.30, 0.32, 0.36, 1
+                size_hint_y: None
+                height: dp(18)
+
+            TextInput:
+                id: profile_name
+                hint_text: "Your name"
+                size_hint_y: None
+                height: dp(44)
+                multiline: False
+
+            Label:
+                text: "Registered On"
+                color: 0.30, 0.32, 0.36, 1
+                size_hint_y: None
+                height: dp(18)
+
+            TextInput:
+                id: profile_created
+                readonly: True
+                size_hint_y: None
+                height: dp(44)
+                multiline: False
+
+            Label:
+                id: profile_status
+                text: ""
+                color: 0.13, 0.78, 0.42, 1
+                size_hint_y: None
+                height: dp(18)
+
+            RoundedBtn:
+                text: "Save Profile"
+                background_color: 0.13, 0.78, 0.42, 1
+                on_release: app.auth_profile_save()
+
+        RoundedCard:
+            SectionTitle:
+                text: "Change Password"
+
+            TextInput:
+                id: profile_old_password
+                hint_text: "Old password"
+                password: True
+                size_hint_y: None
+                height: dp(44)
+                multiline: False
+
+            TextInput:
+                id: profile_new_password
+                hint_text: "New password (min 6 chars)"
+                password: True
+                size_hint_y: None
+                height: dp(44)
+                multiline: False
+
+            TextInput:
+                id: profile_new_confirm
+                hint_text: "Confirm new password"
+                password: True
+                size_hint_y: None
+                height: dp(44)
+                multiline: False
+
+            Label:
+                id: profile_pwd_status
+                text: ""
+                color: 0.90, 0.18, 0.22, 1
+                size_hint_y: None
+                height: dp(18)
+
+            RoundedBtn:
+                text: "Update Password"
+                background_color: 0.16, 0.63, 0.95, 1
+                on_release: app.auth_profile_change_password()
+
+        BoxLayout:
+            size_hint_y: None
+            height: dp(44)
+            spacing: dp(10)
+
+            RoundedBtn:
+                text: "Logout"
+                width: dp(160)
+                background_color: 0.45, 0.49, 0.55, 1
+                on_release: app.auth_profile_logout()
+
+            RoundedBtn:
+                text: "Delete Account"
+                width: dp(160)
+                background_color: 0.90, 0.18, 0.22, 1
+                on_release: app.auth_profile_delete_account()

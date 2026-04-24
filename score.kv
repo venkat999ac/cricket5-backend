@@ -1,0 +1,515 @@
+#:import dp kivy.metrics.dp
+
+# =========================
+# Cricket Ball Buttons
+# =========================
+<BallBtn@Button>:
+    background_normal: ""
+    background_down: ""
+    size_hint: None, None
+    size: dp(52), dp(52)
+    font_size: "15sp"
+    bold: True
+    color: 1, 1, 1, 1
+    canvas.before:
+        Color:
+            rgba: app.shade(self.background_color, 0.88) if self.state == "down" else self.background_color
+        Ellipse:
+            pos: self.pos
+            size: self.size
+    canvas.after:
+        Color:
+            rgba: 1, 1, 1, 0.18
+        Line:
+            circle: (self.center_x, self.center_y, self.width/2 - dp(2))
+            width: dp(1.1)
+
+<TossWinnerToggle@ToggleButton>:
+    size_hint: 1, None
+    height: dp(44)
+    background_normal: ""
+    background_down: ""
+    bold: True
+    color: 1, 1, 1, 1
+    background_color: (0.16, 0.63, 0.95, 1) if self.state == "down" else (0.70, 0.73, 0.78, 1)
+
+<TossChoiceToggle@ToggleButton>:
+    size_hint: 1, None
+    height: dp(44)
+    background_normal: ""
+    background_down: ""
+    bold: True
+    color: 1, 1, 1, 1
+    background_color: (0.13, 0.78, 0.42, 1) if self.state == "down" else (0.45, 0.49, 0.55, 1)
+
+<ScoreScreen@WhiteScreen>:
+    name: "score"
+
+    BoxLayout:
+        orientation: "vertical"
+        padding: dp(16)
+        spacing: dp(10)
+
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint_y: None
+            height: dp(36)
+            spacing: dp(8)
+
+            Button:
+                text: "< Back"
+                size_hint_x: None
+                width: dp(80)
+                background_normal: ""
+                background_down: ""
+                background_color: 0.45, 0.49, 0.55, 1
+                color: 1, 1, 1, 1
+                font_size: "13sp"
+                on_release: app.go("tournament_detail")
+
+            Label:
+                id: match_title
+                text: "Score Screen"
+                font_size: "18sp"
+                bold: True
+                color: 0.10, 0.12, 0.16, 1
+                text_size: self.size
+                halign: "center"
+                valign: "middle"
+
+        RoundedCard:
+            SectionTitle:
+                text: "Score"
+
+            Label:
+                text: app.score_summary
+                font_size: "18sp"
+                bold: True
+                color: 0.10, 0.12, 0.16, 1
+                size_hint_y: None
+                height: dp(26)
+
+            Label:
+                text: app.score_detail
+                font_size: "13sp"
+                color: 0.30, 0.32, 0.36, 1
+                size_hint_y: None
+                height: dp(20)
+
+            Label:
+                text: app.score_target
+                font_size: "13sp"
+                color: 0.30, 0.32, 0.36, 1
+                size_hint_y: None
+                height: dp(20)
+
+            Label:
+                text: "Status: " + app.score_status
+                font_size: "12sp"
+                color: 0.25, 0.27, 0.33, 1
+                size_hint_y: None
+                height: dp(18)
+
+            # ✅ Toggle view (Team1 / Team2)
+            BoxLayout:
+                size_hint_y: None
+                height: dp(44)
+                spacing: dp(10)
+
+                ToggleButton:
+                    text: app.score_team1 if app.score_team1 else "Team 1"
+                    group: "view_team"
+                    disabled: app.score_team1 == ""
+                    state: "down" if app.score_view_team == app.score_team1 else "normal"
+                    background_normal: ""
+                    background_down: ""
+                    background_color: (0.16, 0.63, 0.95, 1) if self.state == "down" else (0.45, 0.49, 0.55, 1)
+                    color: 1, 1, 1, 1
+                    on_press: app.score_set_view_team(app.score_team1)
+
+                ToggleButton:
+                    text: app.score_team2 if app.score_team2 else "Team 2"
+                    group: "view_team"
+                    disabled: app.score_team2 == ""
+                    state: "down" if app.score_view_team == app.score_team2 else "normal"
+                    background_normal: ""
+                    background_down: ""
+                    background_color: (0.16, 0.63, 0.95, 1) if self.state == "down" else (0.45, 0.49, 0.55, 1)
+                    color: 1, 1, 1, 1
+                    on_press: app.score_set_view_team(app.score_team2)
+
+            SectionTitle:
+                text: "Last 12 balls"
+
+            ScrollView:
+                do_scroll_y: False
+                size_hint_y: None
+                height: dp(40)
+                bar_width: dp(3)
+
+                BoxLayout:
+                    id: last12_box
+                    orientation: "horizontal"
+                    size_hint_x: None
+                    width: self.minimum_width
+                    height: dp(40)
+                    spacing: dp(6)
+                    padding: dp(2), 0
+
+        RoundedCard:
+            size_hint_y: None
+            height: self.minimum_height if app.score_phase == "setup" else 0
+            opacity: 1 if app.score_phase == "setup" else 0
+            disabled: False if app.score_phase == "setup" else True
+
+            SectionTitle:
+                text: "Toss & Start"
+
+            Label:
+                text: "Select Toss Winner"
+                size_hint_y: None
+                height: dp(18)
+                color: 0.30, 0.32, 0.36, 1
+
+            GridLayout:
+                cols: 2
+                spacing: dp(10)
+                size_hint_y: None
+                height: dp(44)
+
+                TossWinnerToggle:
+                    text: app.score_team1 if app.score_team1 else "Team 1"
+                    group: "toss_winner"
+                    disabled: app.score_team1 == "" or app.match_readonly
+                    state: "down" if (app.toss_winner == app.score_team1 and app.score_team1 != "") else "normal"
+                    on_press: app.toss_select_winner(app.score_team1)
+
+                TossWinnerToggle:
+                    text: app.score_team2 if app.score_team2 else "Team 2"
+                    group: "toss_winner"
+                    disabled: app.score_team2 == "" or app.match_readonly
+                    state: "down" if (app.toss_winner == app.score_team2 and app.score_team2 != "") else "normal"
+                    on_press: app.toss_select_winner(app.score_team2)
+
+            Label:
+                text: "Winner Chooses"
+                size_hint_y: None
+                height: dp(18)
+                color: 0.30, 0.32, 0.36, 1
+
+            GridLayout:
+                cols: 2
+                spacing: dp(10)
+                size_hint_y: None
+                height: dp(44)
+
+                TossChoiceToggle:
+                    text: "Bat"
+                    group: "toss_choice"
+                    disabled: app.match_readonly
+                    state: "down" if app.toss_choice == "bat" else "normal"
+                    on_press: app.toss_select_choice("bat")
+
+                TossChoiceToggle:
+                    text: "Field"
+                    group: "toss_choice"
+                    disabled: app.match_readonly
+                    state: "down" if app.toss_choice == "field" else "normal"
+                    on_press: app.toss_select_choice("field")
+
+            Label:
+                text: "[b]Select Overs[/b]"
+                markup: True
+                size_hint_y: None
+                height: dp(18)
+                font_size: "12sp"
+                color: 0.30, 0.32, 0.36, 1
+
+            AnchorLayout:
+                anchor_x: "left"
+                size_hint_y: None
+                height: dp(40)
+
+                Spinner:
+                    id: overs_sp
+                    text: "20"
+                    values: [str(i) for i in range(1, 101)]
+                    size_hint: None, None
+                    height: dp(34)
+                    width: dp(110)
+                    disabled: app.match_readonly
+
+            RoundedBtn:
+                text: "Start Match"
+                background_color: 0.96, 0.58, 0.11, 1
+                disabled: not (app.toss_winner != "" and app.toss_choice != "") or app.match_readonly
+                opacity: 1 if not app.match_readonly else 0.5
+                on_press: app.score_start_from_toss(overs_sp.text)
+
+        ScrollView:
+            do_scroll_x: False
+            bar_width: dp(4)
+            size_hint_y: 1
+
+            BoxLayout:
+                orientation: "vertical"
+                spacing: dp(10)
+                size_hint_y: None
+                height: self.minimum_height
+
+                # ✅ Break card
+                RoundedCard:
+                    size_hint_y: None
+                    height: self.minimum_height if app.score_phase == "break" else 0
+                    opacity: 1 if app.score_phase == "break" else 0
+                    disabled: False if app.score_phase == "break" else True
+
+                    SectionTitle:
+                        text: "Innings Break"
+
+                    Label:
+                        text: "1st innings completed. Start 2nd innings."
+                        color: 0.10, 0.12, 0.16, 1
+                        size_hint_y: None
+                        height: dp(22)
+
+                    RoundedBtn:
+                        text: "Start 2nd Innings"
+                        background_color: 0.13, 0.78, 0.42, 1
+                        disabled: app.match_readonly
+                        opacity: 1 if not app.match_readonly else 0.5
+                        on_press: app.score_start_second_innings()
+
+                RoundedCard:
+                    size_hint_y: None
+                    height: self.minimum_height if app.score_phase in ("live","break","complete") else 0
+                    opacity: 1 if app.score_phase in ("live","break","complete") else 0
+                    disabled: False if app.score_phase in ("live","break","complete") else True
+
+                    SectionTitle:
+                        text: "Selectors (Admin)"
+
+                    GridLayout:
+                        cols: 2
+                        spacing: dp(10)
+                        size_hint_y: None
+                        height: self.minimum_height
+
+                        Spinner:
+                            id: striker_sp
+                            text: "Select"
+                            values: []
+                            size_hint_y: None
+                            height: dp(44)
+                            disabled: app.match_readonly
+
+                        Spinner:
+                            id: non_striker_sp
+                            text: "Select"
+                            values: []
+                            size_hint_y: None
+                            height: dp(44)
+                            disabled: app.match_readonly
+
+                        Spinner:
+                            id: bowler_sp
+                            text: "Select bowler"
+                            values: []
+                            size_hint_y: None
+                            height: dp(44)
+                            disabled: app.match_readonly
+
+                        RoundedBtn:
+                            text: "Apply"
+                            width: dp(160)
+                            background_color: 0.16, 0.63, 0.95, 1
+                            disabled: app.match_readonly
+                            opacity: 1 if not app.match_readonly else 0.5
+                            on_press: app.score_apply_selectors(striker_sp.text, non_striker_sp.text, bowler_sp.text)
+
+                    SectionTitle:
+                        text: "Batting (Scorecard)"
+                    BoxLayout:
+                        id: batting_box
+                        orientation: "vertical"
+                        size_hint_y: None
+                        height: self.minimum_height
+
+                    SectionTitle:
+                        text: "Bowling (Scorecard)"
+                    BoxLayout:
+                        id: bowling_box
+                        orientation: "vertical"
+                        size_hint_y: None
+                        height: self.minimum_height
+
+                    SectionTitle:
+                        text: "Fall of Wickets"
+                    BoxLayout:
+                        id: fow_box
+                        orientation: "vertical"
+                        size_hint_y: None
+                        height: self.minimum_height
+
+                RoundedCard:
+                    size_hint_y: None
+                    height: self.minimum_height if app.score_phase == "live" else 0
+                    opacity: 1 if app.score_phase == "live" else 0
+                    disabled: False if app.score_phase == "live" else True
+
+                    SectionTitle:
+                        text: "Runs"
+
+                    GridLayout:
+                        cols: 6
+                        spacing: dp(10)
+                        size_hint_y: None
+                        height: dp(54)
+
+                        BallBtn:
+                            text: "0"
+                            background_color: 0.45, 0.49, 0.55, 1
+                            disabled: app.match_readonly
+                            opacity: 1 if not app.match_readonly else 0.5
+                            on_press: app.score_add_runs(0)
+
+                        BallBtn:
+                            text: "1"
+                            background_color: 0.16, 0.63, 0.95, 1
+                            disabled: app.match_readonly
+                            opacity: 1 if not app.match_readonly else 0.5
+                            on_press: app.score_add_runs(1)
+
+                        BallBtn:
+                            text: "2"
+                            background_color: 0.16, 0.63, 0.95, 1
+                            disabled: app.match_readonly
+                            opacity: 1 if not app.match_readonly else 0.5
+                            on_press: app.score_add_runs(2)
+
+                        BallBtn:
+                            text: "3"
+                            background_color: 0.16, 0.63, 0.95, 1
+                            disabled: app.match_readonly
+                            opacity: 1 if not app.match_readonly else 0.5
+                            on_press: app.score_add_runs(3)
+
+                        BallBtn:
+                            text: "4"
+                            background_color: 0.55, 0.22, 0.90, 1
+                            disabled: app.match_readonly
+                            opacity: 1 if not app.match_readonly else 0.5
+                            on_press: app.score_add_runs(4)
+
+                        BallBtn:
+                            text: "6"
+                            background_color: 0.96, 0.58, 0.11, 1
+                            disabled: app.match_readonly
+                            opacity: 1 if not app.match_readonly else 0.5
+                            on_press: app.score_add_runs(6)
+
+                    SectionTitle:
+                        text: "Extras (2s active)"
+
+                    GridLayout:
+                        cols: 4
+                        spacing: dp(10)
+                        size_hint_y: None
+                        height: dp(54)
+
+                        BallBtn:
+                            text: "WD"
+                            font_size: "13sp"
+                            background_color: 0.13, 0.78, 0.42, 1
+                            disabled: app.match_readonly
+                            opacity: 1 if not app.match_readonly else 0.5
+                            on_press: app.score_set_extra("WD")
+
+                        BallBtn:
+                            text: "NB"
+                            font_size: "13sp"
+                            background_color: 0.13, 0.78, 0.42, 1
+                            disabled: app.match_readonly
+                            opacity: 1 if not app.match_readonly else 0.5
+                            on_press: app.score_set_extra("NB")
+
+                        BallBtn:
+                            text: "BYE"
+                            font_size: "13sp"
+                            background_color: 0.16, 0.63, 0.95, 1
+                            disabled: app.match_readonly
+                            opacity: 1 if not app.match_readonly else 0.5
+                            on_press: app.score_set_extra("B")
+
+                        BallBtn:
+                            text: "LB"
+                            font_size: "13sp"
+                            background_color: 0.16, 0.63, 0.95, 1
+                            disabled: app.match_readonly
+                            opacity: 1 if not app.match_readonly else 0.5
+                            on_press: app.score_set_extra("LB")
+
+                    BoxLayout:
+                        size_hint_y: None
+                        height: dp(44)
+                        spacing: dp(10)
+
+                        RoundedBtn:
+                            text: "CLEAR EXTRA"
+                            width: dp(160)
+                            background_color: 0.45, 0.49, 0.55, 1
+                            disabled: app.match_readonly
+                            opacity: 1 if not app.match_readonly else 0.5
+                            on_press: app.score_clear_extra()
+
+                        RoundedBtn:
+                            text: "WICKET"
+                            width: dp(160)
+                            background_color: 0.90, 0.18, 0.22, 1
+                            disabled: app.match_readonly
+                            opacity: 1 if not app.match_readonly else 0.5
+                            on_press: app.open_wicket_popup()
+
+                    SectionTitle:
+                        text: "Actions"
+
+                    GridLayout:
+                        cols: 2
+                        spacing: dp(10)
+                        size_hint_y: None
+                        height: self.minimum_height
+
+                        RoundedBtn:
+                            text: "UNDO"
+                            width: dp(180)
+                            background_color: 0.45, 0.49, 0.55, 1
+                            disabled: app.match_readonly
+                            opacity: 1 if not app.match_readonly else 0.5
+                            on_press: app.score_undo()
+
+                        RoundedBtn:
+                            text: "REDO"
+                            width: dp(180)
+                            background_color: 0.45, 0.49, 0.55, 1
+                            disabled: app.match_readonly
+                            opacity: 1 if not app.match_readonly else 0.5
+                            on_press: app.score_redo()
+
+                        RoundedBtn:
+                            text: "RESET INNINGS"
+                            width: dp(180)
+                            background_color: 0.96, 0.58, 0.11, 1
+                            disabled: app.match_readonly
+                            opacity: 1 if not app.match_readonly else 0.5
+                            on_press: app.score_reset_innings()
+
+                        RoundedBtn:
+                            id: end_innings_btn
+                            text: "END INNINGS"
+                            width: dp(180)
+                            background_color: 0.96, 0.30, 0.11, 1
+                            # Disable if readonly OR not in live phase
+                            disabled: app.match_readonly or app.score_phase != "live"
+                            opacity: 1 if (not app.match_readonly and app.score_phase == "live") else 0.5
+                            # Use on_release instead of on_press for better stability
+                            on_release: app.score_end_innings()
